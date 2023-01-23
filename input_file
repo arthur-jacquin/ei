@@ -1,0 +1,9 @@
+s0 s1 s2 s3
+s0 s3
+s0 ?Coin s1
+s1 !Bad s0
+s1 !Good s2
+s2 ?Cancel s0
+s2 ?Soda s3
+s3 !Can s0
+s3 !Unav s2
