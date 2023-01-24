@@ -128,7 +128,7 @@ class Automaton:
             k += 1
 
         # Remember ranks has been computed
-        self.ranks_computed = False
+        self.ranks_computed = True
 
     def winning_strategy(self):
         ''' Compute the winning strategy '''
