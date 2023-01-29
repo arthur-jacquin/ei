@@ -1,0 +1,21 @@
+s0 s1 s2 s3 s4 s5 s6 s7 s8 s9 s10 s11
+s0 s11
+s0 ?Start s1
+s1 !Insert s2
+s2 ?Card s3
+s2 ?Inact1 s0
+s3 !Input s4
+s3 !BadRead s2
+s4 ?Inact2 s0
+s4 ?Code s5
+s5 !Money s6
+s5 !BadCode s4
+s6 ?Small s7
+s6 ?Medium s8
+s6 ?Big s9
+s6 ?Inact3 s0
+s7 !MoneyS s10
+s8 !MoneyM s10
+s9 !MoneyB s10
+s10 ?Retrieve s11
+s11 !End s0

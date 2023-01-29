@@ -70,6 +70,15 @@ class Automaton:
 
         # Remember the process has been done
         self.is_bipartite = True
+    
+    def blue_move(self, state, strategy):
+        return self.T[(state, strategy[state])]
+
+    def red_move(self, state):
+        return self.E[state][randint(0, len(self.E[state])-1)]
+
+
+class Integer_ranks_automaton(Automaton):
 
     def compute_ranks(self, obj):
         ''' Compute the ranks '''
@@ -144,12 +153,6 @@ class Automaton:
                     res[node] = tr
 
         return res
-    
-    def blue_move(self, state, strategy):
-        return self.T[(state, strategy[state])]
-
-    def red_move(self, state):
-        return self.E[state][randint(0, len(self.E[state])-1)]
 
     def reproduce(self, trace):
         # Get the sequence of transitions to reproduce
@@ -244,90 +247,82 @@ class Automaton:
             return
 
 
-    # def compute_couples_ranks(self):
-    #     ''' Compute couples ranks '''
+class Couple_ranks_automaton(Automaton):
 
-    #     # Get sure the graph is bipartite
-    #     if not(self.is_bipartite):
-    #         self.to_bipartite()
+    def compute_couples_ranks(self):
+        ''' Compute couples ranks '''
 
-    #     #Initialize W and the rank dictionary
-    #     self.W = [[],[self.t]]
-    #     Wmemory = [] #List keeping in memory the previous iteration of W[-1]
-    #     self.rankdic = {self.t: (0,0)}
-    #     i,j = 0,0
+        # Get sure the graph is bipartite
+        if not(self.is_bipartite):
+            self.to_bipartite()
 
-    #     while self.W[-1] != Wmemory:
-    #         j+=1
-    #         Wmemory = self.W[-1][:]
-    #         for p in filter(lambda x: x not in Wmemory, self.V):
-    #             if self.marks[p]==-1:
-    #                 for q in self.E[p]:
-    #                     if q in Wmemory:
-    #                         self.W[-1].append(p)
-    #                         self.rankdic[p] = (i,j)
-    #                         break
-    #             else:
-    #                 b = True
-    #                 for q in self.E[p]:
-    #                     if self.marks[q]==-1 and q not in Wmemory:
-    #                         b = False
-    #                         break
-    #                 if b:
-    #                     self.W[-1].append(p)
-    #                     self.rankdic[p] = (i,j)
+        #Initialize W and the rank dictionary
+        self.W = [[],[self.t]]
+        Wmemory = [] #List keeping in memory the previous iteration of W[-1]
+        self.rankdic = {self.t: (0,0)}
+        i,j = 0,0
 
-    #     while self.W[-1] != self.W[-2]:
-    #         i+=1
-    #         j=0
-    #         self.W.append(self.W[-1][:])
-    #         for p in filter(lambda x: x not in self.W[-2], self.V):
-    #             if self.marks[p]==1:
-    #                 b1,b2 = False,False
-    #                 for q in self.E[p]:
-    #                     if q in self.W[-2]:
-    #                         b1 = True
-    #                     else:
-    #                         b2 = True
-    #                 if b1 and b2:
-    #                     self.W[-1].append(p)
-    #                     self.rankdic[p] = (i,j)
+        while self.W[-1] != Wmemory:
+            j+=1
+            Wmemory = self.W[-1][:]
+            for p in filter(lambda x: x not in Wmemory, self.V):
+                if self.marks[p]==-1:
+                    for q in self.E[p]:
+                        if q in Wmemory:
+                            self.W[-1].append(p)
+                            self.rankdic[p] = (i,j)
+                            break
+                else:
+                    b = True
+                    for q in self.E[p]:
+                        if self.marks[q]==-1 and q not in Wmemory:
+                            b = False
+                            break
+                    if b:
+                        self.W[-1].append(p)
+                        self.rankdic[p] = (i,j)
 
-    #         while self.W[-1] != Wmemory:
-    #             j+=1
-    #             Wmemory = self.W[-1][:]
-    #             for p in filter(lambda x: x not in Wmemory, self.V):
-    #                 if self.marks[p]==-1:
-    #                     for q in self.E[p]:
-    #                         if q in Wmemory:
-    #                             self.W[-1].append(p)
-    #                             self.rankdic[p] = (i,j)
-    #                             break
-    #                 else:
-    #                     b = True
-    #                     for q in self.E[p]:
-    #                         if self.marks[q]==-1 and q not in Wmemory:
-    #                             b = False
-    #                             break
-    #                     if b:
-    #                         self.W[-1].append(p)
-    #                         self.rankdic[p] = (i,j)
-    #     self.W.pop(0)
-    #     self.W.pop()
-    #     for p in filter(lambda x: x not in self.W[-1], self.V):
-    #         self.rankdic[p]= (inf,inf)
+        while self.W[-1] != self.W[-2]:
+            i+=1
+            j=0
+            self.W.append(self.W[-1][:])
+            for p in filter(lambda x: x not in self.W[-2], self.V):
+                if self.marks[p]==1:
+                    b1,b2 = False,False
+                    for q in self.E[p]:
+                        if q in self.W[-2]:
+                            b1 = True
+                        else:
+                            b2 = True
+                    if b1 and b2:
+                        self.W[-1].append(p)
+                        self.rankdic[p] = (i,j)
+
+            while self.W[-1] != Wmemory:
+                j+=1
+                Wmemory = self.W[-1][:]
+                for p in filter(lambda x: x not in Wmemory, self.V):
+                    if self.marks[p]==-1:
+                        for q in self.E[p]:
+                            if q in Wmemory:
+                                self.W[-1].append(p)
+                                self.rankdic[p] = (i,j)
+                                break
+                    else:
+                        b = True
+                        for q in self.E[p]:
+                            if self.marks[q]==-1 and q not in Wmemory:
+                                b = False
+                                break
+                        if b:
+                            self.W[-1].append(p)
+                            self.rankdic[p] = (i,j)
+        self.W.pop(0)
+        self.W.pop()
+        for p in filter(lambda x: x not in self.W[-1], self.V):
+            self.rankdic[p]= (inf,inf)
 
 
-A = Automaton('input_file')
-
-# print(A.winning_strategy("s3"))
-
-# print(A.E)
-
+# Testing
+A = Integer_ranks_automaton('input_file')
 A.reproduce('trace')
-
-# A.compute_couples_ranks()
-# print(A.rankdic)
-# print(A.W)
-
-# TODO: check if problem with error nodes
