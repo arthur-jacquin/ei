@@ -2,13 +2,28 @@ from math import inf
 from random import randint
 
 class Automaton:
+    ''' Minimal automaton, with method to bipartite.
+    
+    Two classes inherits this one. Classes are organised that way to experiment
+    two types of ranks : ranks as couples (as in the paper), and ranks as
+    integers only. The latter way is much more efficient memory and computively
+    wise : the couples ranks are mostly here as a point of comparison for
+    integers ranks.
+
+    The most interesting point is the compute_ranks method in the
+    Integer_ranks_automaton class. It clearly displays the pros of the integers
+    ranks, as it completely suppress the need to compute the W_k.
+    '''
 
     def check(self, node):
+        ''' Check if node is in automaton '''
+
         if node not in self.S:
             raise f'Error: "{node}" is not in the nodes.'
 
     def __init__(self, input_file):
         ''' Create an automaton from the data contained in input_file '''
+
         with open(input_file, 'r') as file:
             self.S = file.readline().strip().split(' ')
             self.s0 = file.readline().strip()
@@ -81,7 +96,11 @@ class Automaton:
 class Integer_ranks_automaton(Automaton):
 
     def compute_ranks(self, obj):
-        ''' Compute the ranks '''
+        ''' Compute the ranks
+
+        Ranks are directly computed, without storing W_k. This is possible
+        because of the use of integers for ranks (instead of couples).
+        '''
 
         # Get sure the graph is bipartite
         if not(self.is_bipartite):
@@ -92,39 +111,43 @@ class Integer_ranks_automaton(Automaton):
         ranks[obj] = 0
         k = 1
 
+        # Compute W_k until stationnaray (W_k = W_{k+1})
         added = True
         while added:
             added = False
             for p in self.V:
                 if p in ranks:
+                    # p is already in W_i with i < k
                     continue
                 if self.marks[p] == -1:
+                    # p in V_B: check if exist transition to q in W_i (i < k)
                     for q in self.E[p]:
                         if q in ranks:
                             ranks[p] = k
                             added = True
                             break
                 else:
+                    # p in V_R: check if all transitions goes in W_i (i < k)
                     for q in self.E[p]:
                         if q not in ranks:
                             break
                     else:
                         ranks[p] = k
                         added = True
+
             if added == False:
-                # W(i+1, j) = W(i, j): we need to increment j
+                # There is no nodes that assure a transition to W_i (i < k)
+                # Let's consider nodes that may transition to W_i (i < k)
+                # (With the couples ranks: W(i+1, j) = W(i, j) so we need to increment j)
                 for p in self.V:
                     if p not in ranks and self.marks[p] == 1:
-                        is_found_in = False
-                        is_found_not_in = False
                         for q in self.E[p]:
                             if q in ranks:
-                                is_found_in = True
-                            else:
-                                is_found_not_in = True
-                        if is_found_in == True and is_found_not_in == True:
-                            ranks[p] = k
-                            added = True
+                                ranks[p] = k
+                                added = True
+                                break
+
+            # Increment the rank
             k += 1
 
         # Return the results
@@ -137,13 +160,13 @@ class Integer_ranks_automaton(Automaton):
         ranks = self.compute_ranks(obj)
 
         for node in self.V:
-            if self.marks[node] == -1:
+            if self.marks[node] == -1: # Check if node is in V_B
                 if node == "errorB":
                     res[node] = "tau"
                 else:
                     tr = None
                     lowest_rank = None
-                    # Check each possible transition
+                    # Search for transition to lowest ranked neighbour
                     for (src, label), dest in self.T.items():
                         if src != node:
                             continue
@@ -321,7 +344,6 @@ class Couple_ranks_automaton(Automaton):
         self.W.pop()
         for p in filter(lambda x: x not in self.W[-1], self.V):
             self.rankdic[p]= (inf,inf)
-
 
 # Testing
 A = Integer_ranks_automaton('input_file')
